@@ -1,4 +1,4 @@
-import { IonContent, IonGrid, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonFab, IonFabButton, IonIcon, IonBackdrop, IonLoading, IonModal, IonList, IonItem } from '@ionic/react';
+import { IonContent, IonGrid, IonHeader, IonPage, IonTitle, IonToolbar, IonRow, IonCol, IonFab, IonFabButton, IonIcon, IonBackdrop, IonLoading, IonModal, IonList, IonItem, IonButtons, IonAlert, IonAvatar, IonLabel, IonSelect, IonSelectOption } from '@ionic/react';
 import { add, arrowUndoCircleOutline } from 'ionicons/icons';
 import { useEffect, useRef, useState } from 'react';
 import { POSTS_URL } from '../axiosDirs';
@@ -6,6 +6,11 @@ import { GenericMap } from '../components/GenericMap';
 import PostCard from '../components/PostCard';
 import { WetlandForm } from '../components/WetlandForm';
 import { bingMapPosition, infobox, marker, post } from '../interfaces/interfaces';
+import '../theme/customizations.css'
+import LoginButton from '../components/Login';
+import LogoutButton from '../components/Logout';
+import { useAuth0 } from "@auth0/auth0-react";
+
 const axios = require('axios');
 
 const Tab1: React.FC = () => {
@@ -20,6 +25,9 @@ const Tab1: React.FC = () => {
 	const [ showFormModal, setShowFormModal ] = useState<boolean>(false);
 	const [ loading, setLoading ] = useState<boolean>(false);
 	const editModeActive = useRef<boolean>(false);
+
+	const { user, isAuthenticated, isLoading } = useAuth0();
+
 
 	useEffect(()=>{
 		const getData = async () =>{
@@ -123,58 +131,93 @@ const Tab1: React.FC = () => {
 		console.log(markers);	
 	},[markers])
 
+
+	const [showAlert1, setShowAlert1] = useState(false);
+
+
+
 	return (
 		<IonPage>
 			<IonHeader>
 				<IonToolbar>
 					<IonTitle>Humedales digitales</IonTitle>
+					
+					{!isAuthenticated && (
+						<IonButtons slot='end'>
+							<LoginButton />
+						</IonButtons>
+					)}
+
+					{isAuthenticated && (
+						<IonButtons slot='end'>
+							<img className="circular--square" src={user && user.picture} alt={user && user.name} width="35" height="35" />
+							<p>{user && user.nickname}</p>
+							<LogoutButton />
+						</IonButtons>
+					)}
+
 				</IonToolbar>
 			</IonHeader>
 			<IonContent>
-			<IonLoading
-				isOpen={loading}
-				showBackdrop={true}
-				message={'Cargando!'}
-				duration={5000}
-			/>
+				
+				
+				<IonLoading
+					isOpen={loading}
+					showBackdrop={true}
+					message={'Cargando!'}
+					duration={5000}
+				/>
 				<IonGrid className={'fixHeight'}>
 					<IonRow className={'fixHeight'}>
 						{	colsSize.postCol !== '0' ?
 							<IonCol size={colsSize.postCol} className={'fixHeight scroll'}>
-							{
-								postsData.length > 0 ? 
-								postsData.map((post, index)=>{
-									if(post.status === 'approved') return(
-										<PostCard
+								
+								{
+									
+									postsData.length > 0 ? 
+									postsData.map((post, index)=>{
+										if(post.status === 'approved') return(
+											<PostCard
 											key={`PostCard-content-index${index}'id'${post.id}`}
-											index={index}
-											id={post.id}
-											status={post.status}
-											category={post.category}
-											subcategory={post.subcategory}
-											content={post.content}
-											ubication={post.ubication}
-											keyword={post.keyword}
-											buttons={[
-												{label: 'Ver en el mapa', onClick: ()=> {getPostPosition(post.id)}, icon: 'pin'},
-												{label: 'Ver publicacion', onClick: ()=> {console.log(post.id)}, icon: 'pin'}											
-											]}
-										/>
-									)
-									return null;
-								}) 
-								:
-								null
-							}
+												index={index}
+												id={post.id}
+												status={post.status}
+												category={post.category}
+												subcategory={post.subcategory}
+												content={post.content}
+												ubication={post.ubication}
+												keyword={post.keyword}
+												buttons={[
+													{label: 'Ver en el mapa', onClick: ()=> {getPostPosition(post.id)}, icon: 'pin'},
+													{label: 'Ver publicacion', onClick: ()=> {console.log(post.id)}, icon: 'pin'}											
+												]}
+												/>
+										)
+										return null;
+									}) 
+									:
+									null
+								}
 							</IonCol>
 							:
 							null
 						}
 						<IonCol size={colsSize.mapCol}>
 							<IonFab horizontal={"end"} vertical={"bottom"}>
-								<IonFabButton color={"success"} onClick={() => editModeON()} hidden={!showFab.addFab}><IonIcon icon={add}></IonIcon></IonFabButton>
+								<IonFabButton color={"success"} onClick={ !isAuthenticated ? () => setShowAlert1(true) : () => editModeON()} hidden={!showFab.addFab}><IonIcon icon={add}></IonIcon></IonFabButton>
 								<IonFabButton color={"warning"} onClick={() => editModeOFF()} hidden={!showFab.cancelFab}><IonIcon icon={arrowUndoCircleOutline}></IonIcon></IonFabButton>
 							</IonFab>
+
+							<IonAlert
+								isOpen={showAlert1}
+								onDidDismiss={() => setShowAlert1(false)}
+								cssClass='my-custom-class'
+								header={'Alerta'}
+								subHeader={''}
+								message={'Debe iniciar sesión para agregar una publicación'}
+								buttons={['OK']}
+							/>
+
 							<GenericMap center={mapCenter} width={'100%'} height={'78vh'} markers={markers} zoom={zoom} 
 								getLocationOnClick={(value:bingMapPosition) => getClickedLocation(value)} loading={loading}
 							/>

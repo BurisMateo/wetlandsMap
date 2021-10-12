@@ -1,8 +1,11 @@
-import { IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
+import { IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonTitle, IonToolbar, IonButtons } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
 import { POSTS_URL } from '../axiosDirs';
 import PostCard from '../components/PostCard';
 import { post } from '../interfaces/interfaces';
+import LoginButton from '../components/Login';
+import LogoutButton from '../components/Logout';
+import { useAuth0 } from "@auth0/auth0-react";
 const axios = require('axios');
 
 const Tab3: React.FC = () => {
@@ -11,6 +14,7 @@ const Tab3: React.FC = () => {
 	const [ approveds, setApproveds ] = useState<JSX.Element[]>([]);
 	const [ refuseds, setRefuseds ] = useState<JSX.Element[]>([]);
 	const [ forceRefresh, setForceRefresh ] = useState<boolean>(false);
+	const { user, isAuthenticated, isLoading } = useAuth0();
 
 	useEffect(()=>{
 		const getData = () =>{
@@ -90,7 +94,20 @@ const Tab3: React.FC = () => {
 		<IonPage>
 			<IonHeader>
 				<IonToolbar>
-					<IonTitle>Mapa</IonTitle>
+					<IonTitle>Humedales Digitales</IonTitle>
+					{!isAuthenticated && (
+						<IonButtons slot='end'>
+							<LoginButton />
+						</IonButtons>
+					)}
+
+					{isAuthenticated && (
+						<IonButtons slot='end'>
+							<img className="circular--square" src={user && user.picture} alt={user && user.name} width="35" height="35" />
+							<p>{user && user.nickname}</p>
+							<LogoutButton />
+						</IonButtons>
+					)}
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen>
