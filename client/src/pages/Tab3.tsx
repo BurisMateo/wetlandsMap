@@ -1,4 +1,4 @@
-import { IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonTitle, IonToolbar, IonButtons } from '@ionic/react';
+import { IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonTitle, IonToolbar, IonButtons, IonAlert, IonButton } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
 import { POSTS_URL } from '../axiosDirs';
 import PostCard from '../components/PostCard';
@@ -6,6 +6,7 @@ import { post } from '../interfaces/interfaces';
 import LoginButton from '../components/Login';
 import LogoutButton from '../components/Logout';
 import { useAuth0 } from "@auth0/auth0-react";
+import { useFormState } from 'react-hook-form';
 const axios = require('axios');
 
 const Tab3: React.FC = () => {
@@ -15,8 +16,10 @@ const Tab3: React.FC = () => {
 	const [ refuseds, setRefuseds ] = useState<JSX.Element[]>([]);
 	const [ forceRefresh, setForceRefresh ] = useState<boolean>(false);
 	const { user, isAuthenticated, isLoading } = useAuth0();
+	
 
 	useEffect(()=>{
+
 		const getData = () =>{
 			axios.get(`${POSTS_URL}/posts`).then((response: { data: post[] }) => {
 				setPostData(response.data);
@@ -24,8 +27,9 @@ const Tab3: React.FC = () => {
 		}
 		getData();
 	},[]);
-
+	
 	useEffect(()=>{
+		
 		let auxPendings = [];
 		let auxApproveds = [];
 		let auxRefuseds = [];
@@ -111,6 +115,9 @@ const Tab3: React.FC = () => {
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen>
+				{!isAuthenticated && (
+					<IonTitle>Anashei</IonTitle>
+				)}
 				<IonGrid className={'fixHeight'}>
 					<IonRow className={'fixHeight'}>
 						<IonCol size="4" className={'fixHeight scroll'}>

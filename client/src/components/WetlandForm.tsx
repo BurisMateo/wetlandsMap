@@ -100,6 +100,9 @@ export const WetlandForm: React.FC<wetlandFormProps> = (props) => {
                 ) setStep(step+1);
                 else showError('Debe completar todos los campos.');
             break;
+            case 4:
+                setStep(step+1);
+            break;
         }
     }
 
