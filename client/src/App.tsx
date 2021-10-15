@@ -40,7 +40,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 const App: React.FC = () => {
 
   const { user, isAuthenticated, isLoading } = useAuth0();
-	const wetlandusers = [] =['burismateo@gmail.com'];
+	const wetlandusers = [] =['ivan.antoff@gmail.com', 'burismateo@gmail.com', 'paredes.gimena@gmail.com', 'ireneaguer1@gmail.com', 'aguer.irene@uader.edu.ar', 'avila.eli.05@gmail.com'];
 	const useremail = user?.email;
   
   return (
